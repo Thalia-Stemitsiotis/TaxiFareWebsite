@@ -1,48 +1,34 @@
 import streamlit as st
+import datetime
+import requests
+
 
 '''
-# TaxiFareModel front
+# NY Taxi Prediction App
 '''
 
-st.markdown('''
-Remember that there are several ways to output content into your web page...
+d = st.date_input(
+    "Enter date: yyyy/mm/dd")
 
-Either as with the title by just creating a string (or an f-string). Or as with this paragraph using the `st.` functions
-''')
+t = st.time_input('Time:')
+p_longitude = st.number_input('Pickup longitude')
+p_latitude = st.number_input('Pickup latitude')
+d_longitude = st.number_input('Dropoff longitude')
+d_latitude = st.number_input('Dropoff latitude')
+p_count = st.number_input('Passenger count')
 
-'''
-## Here we would like to add some controllers in order to ask the user to select the parameters of the ride
-
-1. Let's ask for:
-- date and time
-- pickup longitude
-- pickup latitude
-- dropoff longitude
-- dropoff latitude
-- passenger count
-'''
-
-'''
-## Once we have these, let's call our API in order to retrieve a prediction
-
-See ? No need to load a `model.joblib` file in this app, we do not even need to know anything about Data Science in order to retrieve a prediction...
-
-🤔 How could we call our API ? Off course... The `requests` package 💡
-'''
+date_time = str(datetime.datetime.combine(d, t))
 
 url = 'https://taxifare.lewagon.ai/predict'
+params = {
+    'pickup_datetime': date_time,
+    'pickup_longitude':p_longitude,
+    'pickup_latitude':p_latitude,
+    'dropoff_longitude':d_longitude,
+    'dropoff_latitude':d_latitude,
+    'passenger_count':int(p_count)}
 
-if url == 'https://taxifare.lewagon.ai/predict':
-
-    st.markdown('Maybe you want to use your own API for the prediction, not the one provided by Le Wagon...')
-
-'''
-
-2. Let's build a dictionary containing the parameters for our API...
-
-3. Let's call our API using the `requests` package...
-
-4. Let's retrieve the prediction from the **JSON** returned by the API...
-
-## Finally, we can display the prediction to the user
-'''
+if st.button('Click here for taxi fare price'):
+    response = requests.get(url, params).json()
+    price = round(response['prediction'], 2)
+    st.success(f'Predicted taxi fare price: {price}')
